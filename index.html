@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo - Capture Your Digital Presence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom styles for the PDF/document effect */
+        .screenshot-effect {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            background: white;
+        }
+        
+        /* Graph paper background */
+        body {
+            background-image: linear-gradient(#e5e7eb 1px, transparent 1px),
+                              linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: #f9fafb;
+            padding: 40px 20px;
+        }
+        
+        /* PDF/document shadow effect */
+        .screenshot-effect::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            z-index: 10;
+        }
+        
+        /* PDF/document header */
+        .screenshot-effect::after {
+            content: "Echo Capture.pdf";
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 14px;
+            color: #64748b;
+            font-family: monospace;
+            z-index: 11;
+        }
+        
+        /* Animation for microinteractions */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Custom scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* --- Begin action-on-view and action-underline styles --- */
+        .action-on-view.action-fade-in {
+            opacity: 0;
+            -webkit-transform: translateY(100px) scale(1.1);
+            transform: translateY(100px) scale(1.1);
+            -webkit-transition: all 1.5s cubic-bezier(.25,.46,.135,.995);
+            transition: all 1.5s cubic-bezier(.25,.46,.135,.995)
+        }
+        .action-on-view.action-fade-in.in-view {
+            opacity: 1;
+            -webkit-transform: translateY(0) scale(1);
+            transform: translateY(0) scale(1)
+        }
+        .action-on-view.increment {
+            display: inline-block
+        }
+        .action-on-view.action-underline {
+            position: relative;
+            white-space: nowrap;
+        }
+        .action-on-view.action-underline::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 0.3em;
+            width: 0;
+            background: #e8b519;
+            z-index: 0;
+            transform: rotate(-1deg);
+            transition: width 1.5s cubic-bezier(.25,.46,.135,.995);
+        }
+        .action-on-view.action-underline.in-view::before {
+            width: 100%;
+        }
+        .action-on-view.action-underline.transition-delay-1000::before {
+            transition-delay: 1s !important;
+        }
+        .action-on-view.action-underline.transition-delay-0::before {
+            -webkit-transition-delay: 0s!important;
+            transition-delay: 0s!important
+        }
+        .action-on-view.action-underline.transition-delay-250::before {
+            -webkit-transition-delay: 250ms!important;
+            transition-delay: 250ms!important
+        }
+        .action-on-view.action-underline.transition-delay-500::before {
+            -webkit-transition-delay: .5s!important;
+            transition-delay: .5s!important
+        }
+        .action-on-view.action-underline.transition-delay-750::before {
+            -webkit-transition-delay: 750ms!important;
+            transition-delay: 750ms!important
+        }
+        .action-on-view.action-underline.transition-delay-1250::before {
+            -webkit-transition-delay: 1.25s!important;
+            transition-delay: 1.25s!important
+        }
+        .action-on-view.action-underline.transition-delay-1500::before {
+            -webkit-transition-delay: 1.5s!important;
+            transition-delay: 1.5s!important
+        }
+        .action-on-view.action-underline.transition-delay-1750::before {
+            -webkit-transition-delay: 1.75s!important;
+            transition-delay: 1.75s!important
+        }
+        .action-on-view.action-underline.transition-delay-2000::before {
+            -webkit-transition-delay: 2s!important;
+            transition-delay: 2s!important
+        }
+        .action-on-view.action-underline.transition-delay-2250::before {
+            -webkit-transition-delay: 2.25s!important;
+            transition-delay: 2.25s!important
+        }
+        .action-on-view.action-underline.transition-delay-2500::before {
+            -webkit-transition-delay: 2.5s!important;
+            transition-delay: 2.5s!important
+        }
+        .action-on-view.action-underline.transition-delay-2750::before {
+            -webkit-transition-delay: 2.75s!important;
+            transition-delay: 2.75s!important
+        }
+        .action-on-view.action-underline.transition-delay-3000::before {
+            -webkit-transition-delay: 3s!important;
+            transition-delay: 3s!important
+        }
+        /* --- End action-on-view and action-underline styles --- */
+    </style>
+</head>
+<body class="font-sans text-gray-800">
+    <!-- PDF/document effect container -->
+    <div class="screenshot-effect max-w-6xl mx-auto overflow-hidden rounded-t-lg">
+        <!-- Navigation -->
+        <nav class="pt-12 px-6 md:px-12 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="text-2xl font-bold gradient-text">Echo</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#demo" class="hover:text-blue-600 transition">Demo</a>
+                <a href="#benefits" class="hover:text-blue-600 transition">Benefits</a>
+                <a href="#about" class="hover:text-blue-600 transition">About</a>
+                <a href="#newsletter" class="hover:text-blue-600 transition">Newsletter</a>
+            </div>
+            <button class="md:hidden text-gray-600">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </nav>
+        
+        <!-- Hero Section -->
+        <section class="bg-white">
+            <div class="max-w-5xl mx-auto px-2 md:px-4 flex flex-col md:flex-row items-center py-16 md:py-24">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+                        Submission-Ready Screenshots, 
+                        <span class="action-on-view action-underline transition-delay-1000">in minutes.</span>
+                    </h1>
+                    <p class="text-lg text-gray-600 mb-8">
+                        Echo helps you create beautiful, interactive snapshots of your digital products that you can share with clients, stakeholders, or your team.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#demo" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
+                            Watch Demo
+                        </a>
+                        <a href="#request" class="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
+                            Request Full Demo
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 relative">
+                    <div class="relative overflow-hidden rounded-xl shadow-lg h-full min-h-[340px] flex items-center justify-center">
+                        <iframe class="w-full h-full min-h-[340px]" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Echo Product Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Request Demo Section -->
+        <section id="request" class="bg-gray-50">
+            <div class="max-w-5xl mx-auto px-2 md:px-4 py-16">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                        <span class="action-on-view action-underline transition-delay-0">Ready</span>
+                        <span class="action-on-view action-underline transition-delay-250"> to</span>
+                        <span class="action-on-view action-underline transition-delay-500"> see</span>
+                        <span class="action-on-view action-underline transition-delay-750"> Echo</span>
+                        <span class="action-on-view action-underline transition-delay-1000"> in</span>
+                        <span class="action-on-view action-underline transition-delay-1250"> action?</span>
+                    </h2>
+                    <div class="text-xl text-gray-600 max-w-2xl mx-auto">
+                        Schedule a personalized demo where we'll walk you through all the features and show you how Echo can transform your workflow.
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row gap-10 items-stretch">
+                    <div class="md:w-1/2 flex items-center justify-center">
+                        <div class="w-full max-w-lg">
+                            <h3 class="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-3">
+                                <span><i class="fas fa-clipboard-list text-blue-600 text-2xl"></i></span>
+                                What to expect
+                            </h3>
+                            <div class="bg-blue-50 rounded-2xl p-8 md:p-10 shadow-lg border-2 border-blue-300 w-full">
+                                <div class="space-y-6">
+                                    <div class="flex items-start gap-4">
+                                        <span class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-white"></i>
+                                        </span>
+                                        <span class="font-semibold text-blue-900 text-lg">Full end to end workflow walkthrough</span>
+                                    </div>
+                                    <div class="flex items-start gap-4">
+                                        <span class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-white"></i>
+                                        </span>
+                                        <span class="font-semibold text-blue-900 text-lg">Live project used for real-time feedback</span>
+                                    </div>
+                                    <div class="flex items-start gap-4">
+                                        <span class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-white"></i>
+                                        </span>
+                                        <span class="font-semibold text-blue-900 text-lg">Time with lead client relations and solutions</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 flex items-center justify-center">
+                        <div class="calendly-inline-widget max-w-md w-full ml-auto" data-url="https://calendly.com/wally-hedgehox/30min" style="min-width:320px;height:700px;"></div>
+                        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Benefits Section -->
+        <section id="benefits" class="px-2 md:px-4 py-16">
+            <div class="max-w-4xl mx-auto text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                    <span class="action-on-view action-underline transition-delay-0">Why</span>
+                    <span class="action-on-view action-underline transition-delay-250"> Choose</span>
+                    <span class="action-on-view action-underline transition-delay-500"> Echo?</span>
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Our platform is designed to make your digital presence more tangible and shareable.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-bolt text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Lightning Fast Capture</h3>
+                    <p class="text-gray-600">
+                        Create interactive snapshots of your digital products in seconds. No more complicated screen recording setups or static screenshots.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-share-alt text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Seamless Sharing</h3>
+                    <p class="text-gray-600">
+                        Share your Echo captures via link, embed, or even as interactive PDFs. Your recipients don't need special software to view them.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+                    <div class="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-pink-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Actionable Insights</h3>
+                    <p class="text-gray-600">
+                        Get detailed analytics on how your captures are viewed and interacted with. Understand what resonates with your audience.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-users text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Team Collaboration</h3>
+                    <p class="text-gray-600">
+                        Collaborate with your team in real time, leave comments, and manage feedback all in one place.
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- About Section -->
+        <section id="about" class="bg-gray-50">
+            <div class="max-w-5xl mx-auto px-2 md:px-4 py-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">About Hedgehox</h2>
+                <div class="flex flex-col md:flex-row justify-center items-stretch gap-12 w-full">
+                    <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-xs mx-auto">
+                        <div class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-200 to-purple-200 flex items-center justify-center overflow-hidden shadow-lg mb-6">
+                            <img src="https://placehold.co/200x200/3b82f6/ffffff?text=Founder" alt="Founder" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Alex Johnson, Founder</h3>
+                        <p class="text-gray-600 mb-4 text-center">
+                            With over a decade of experience in digital product design, Alex saw the need for better tools to capture and share digital work. Echo was born from countless frustrating experiences trying to showcase interactive designs.
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-blue-600 hover:text-blue-800">
+                                <i class="fab fa-twitter text-xl"></i>
+                            </a>
+                            <a href="#" class="text-blue-600 hover:text-blue-800">
+                                <i class="fab fa-linkedin text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-xs mx-auto">
+                        <div class="w-32 h-32 rounded-full bg-gradient-to-r from-purple-200 to-pink-200 flex items-center justify-center overflow-hidden shadow-lg mb-6">
+                            <img src="https://placehold.co/200x200/8b5cf6/ffffff?text=Partner" alt="Partner" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Sam Taylor, Partner</h3>
+                        <p class="text-gray-600 mb-4 text-center">
+                            Sam brings technical expertise from years of developing SaaS platforms. Their partnership ensures Echo is both powerful and easy to use, with a focus on solving real problems for creative professionals.
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-blue-600 hover:text-blue-800">
+                                <i class="fab fa-github text-xl"></i>
+                            </a>
+                            <a href="#" class="text-blue-600 hover:text-blue-800">
+                                <i class="fab fa-linkedin text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Newsletter Section -->
+        <section id="newsletter" class="px-6 md:px-12 py-16">
+            <div class="max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 md:p-12 text-center">
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                    <i class="fas fa-hedgehog text-3xl gradient-text"></i>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">The Hedgehox Herald</h2>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                    Subscribe to our newsletter for product updates, tips on digital capture, and occasional hedgehog facts (we couldn't resist).
+                </p>
+                <form class="flex flex-col sm:flex-row max-w-md mx-auto">
+                    <input type="email" placeholder="Your email address" class="flex-1 px-4 py-3 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 sm:mb-0">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-lg font-medium transition hover-scale">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="px-6 md:px-12 py-12 bg-gray-900 text-gray-300">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between mb-12">
+                    <div class="mb-8 md:mb-0">
+                        <span class="text-2xl font-bold text-white gradient-text">Echo</span>
+                        <p class="mt-4 max-w-xs">
+                            Capture, share, and analyze your digital presence with unprecedented ease.
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                        <div>
+                            <h4 class="text-white font-medium mb-4">Product</h4>
+                            <ul class="space-y-2">
+                                <li><a href="#" class="hover:text-white transition">Features</a></li>
+                                <li><a href="#" class="hover:text-white transition">Pricing</a></li>
+                                <li><a href="#" class="hover:text-white transition">Demo</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-medium mb-4">Company</h4>
+                            <ul class="space-y-2">
+                                <li><a href="#" class="hover:text-white transition">About</a></li>
+                                <li><a href="#" class="hover:text-white transition">Careers</a></li>
+                                <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-medium mb-4">Legal</h4>
+                            <ul class="space-y-2">
+                                <li><a href="#" class="hover:text-white transition">Privacy</a></li>
+                                <li><a href="#" class="hover:text-white transition">Terms</a></li>
+                                <li><a href="#" class="hover:text-white transition">Security</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+                    <p class="mb-4 md:mb-0">© 2023 Hedgehox, Inc. All rights reserved.</p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="hover:text-white transition">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="hover:text-white transition">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="hover:text-white transition">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+    // Simple microinteractions
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    // Add hover effect to all buttons
+    const buttons = document.querySelectorAll('button, .hover-scale');
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', () => {
+            button.classList.add('transform', 'scale-105');
+        });
+        button.addEventListener('mouseleave', () => {
+            button.classList.remove('transform', 'scale-105');
+        });
+    });
+    // Mobile menu toggle (would be expanded in a real implementation)
+    const mobileMenuButton = document.querySelector('.md\:hidden');
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', () => {
+            alert('Mobile menu would open here in a full implementation');
+        });
+    }
+    // Intersection Observer for .action-on-view
+    document.addEventListener("DOMContentLoaded", function() {
+        // Intersection Observer for scroll-in animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                }
+            });
+        }, { threshold: 0.5 });
+
+        // Observe all .action-on-view elements
+        document.querySelectorAll('.action-on-view').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Ensure animation triggers for elements already visible on load
+        setTimeout(() => {
+            document.querySelectorAll('.action-on-view').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    el.classList.add('in-view');
+                }
+            });
+        }, 100);
+    });
+    </script>
+</body>
+</html>
