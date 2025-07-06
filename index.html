@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echo - Capture Your Digital Presence</title>
+    <title>Echo - Route-Ready Screenshots, In Minutes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="highlight.css">
     <style>
         /* Custom styles for the PDF/document effect */
         .screenshot-effect {
@@ -25,29 +26,68 @@
             padding: 40px 20px;
         }
         
-        /* PDF/document shadow effect */
-        .screenshot-effect::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e5e7eb;
-            z-index: 10;
+        /* Mac-style window header */
+        .traffic-lights-header {
+            background: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
+            border-bottom: 1px solid #d0d0d0;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            position: relative;
         }
         
-        /* PDF/document header */
-        .screenshot-effect::after {
-            content: "Echo Capture.pdf";
+        .traffic-lights-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .traffic-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0.5px solid rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .traffic-light.red {
+            background: linear-gradient(to bottom, #ff5f57, #ff3b30);
+        }
+        
+        .traffic-light.yellow {
+            background: linear-gradient(to bottom, #ffbd2e, #ff9500);
+        }
+        
+        .traffic-light.green {
+            background: linear-gradient(to bottom, #28cd41, #34c759);
+        }
+        
+        .traffic-light svg {
+            width: 6px;
+            height: 6px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .traffic-light:hover svg {
+            opacity: 1;
+        }
+        
+        .tab-filename {
             position: absolute;
-            top: 10px;
-            left: 20px;
-            font-size: 14px;
-            color: #64748b;
-            font-family: monospace;
-            z-index: 11;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            text-align: center;
+            pointer-events: none;
         }
         
         /* Animation for microinteractions */
@@ -81,138 +121,184 @@
             color: transparent;
         }
         
-        /* --- Begin action-on-view and action-underline styles --- */
-        .action-on-view.action-fade-in {
-            opacity: 0;
-            -webkit-transform: translateY(100px) scale(1.1);
-            transform: translateY(100px) scale(1.1);
-            -webkit-transition: all 1.5s cubic-bezier(.25,.46,.135,.995);
-            transition: all 1.5s cubic-bezier(.25,.46,.135,.995)
+        /* Mobile menu styles */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            padding: 20px;
         }
-        .action-on-view.action-fade-in.in-view {
-            opacity: 1;
-            -webkit-transform: translateY(0) scale(1);
-            transform: translateY(0) scale(1)
-        }
-        .action-on-view.increment {
-            display: inline-block
-        }
-        .action-on-view.action-underline {
-            position: relative;
-            white-space: nowrap;
-        }
-        .action-on-view.action-underline::before {
-            content: "";
-            position: absolute;
-            left: 0;
+        
+        .mobile-menu.active {
             right: 0;
-            bottom: 0;
-            height: 0.3em;
-            width: 0;
-            background: #e8b519;
-            z-index: 0;
-            transform: rotate(-1deg);
-            transition: width 1.5s cubic-bezier(.25,.46,.135,.995);
         }
-        .action-on-view.action-underline.in-view::before {
+        
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .action-on-view.action-underline.transition-delay-1000::before {
-            transition-delay: 1s !important;
+        
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
-        .action-on-view.action-underline.transition-delay-0::before {
-            -webkit-transition-delay: 0s!important;
-            transition-delay: 0s!important
+        
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
         }
-        .action-on-view.action-underline.transition-delay-250::before {
-            -webkit-transition-delay: 250ms!important;
-            transition-delay: 250ms!important
+        
+        .mobile-menu-links {
+            margin-top: 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        .action-on-view.action-underline.transition-delay-500::before {
-            -webkit-transition-delay: .5s!important;
-            transition-delay: .5s!important
+        
+        .mobile-menu-links a {
+            padding: 15px 0;
+            color: #333;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            border-bottom: 1px solid #eee;
+            transition: color 0.3s ease;
         }
-        .action-on-view.action-underline.transition-delay-750::before {
-            -webkit-transition-delay: 750ms!important;
-            transition-delay: 750ms!important
+        
+        .mobile-menu-links a:hover {
+            color: #3b82f6;
         }
-        .action-on-view.action-underline.transition-delay-1250::before {
-            -webkit-transition-delay: 1.25s!important;
-            transition-delay: 1.25s!important
+        
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 4px;
         }
-        .action-on-view.action-underline.transition-delay-1500::before {
-            -webkit-transition-delay: 1.5s!important;
-            transition-delay: 1.5s!important
+        
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #666;
+            margin: 3px 0;
+            transition: 0.3s;
         }
-        .action-on-view.action-underline.transition-delay-1750::before {
-            -webkit-transition-delay: 1.75s!important;
-            transition-delay: 1.75s!important
+        
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
         }
-        .action-on-view.action-underline.transition-delay-2000::before {
-            -webkit-transition-delay: 2s!important;
-            transition-delay: 2s!important
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
         }
-        .action-on-view.action-underline.transition-delay-2250::before {
-            -webkit-transition-delay: 2.25s!important;
-            transition-delay: 2.25s!important
+        
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
         }
-        .action-on-view.action-underline.transition-delay-2500::before {
-            -webkit-transition-delay: 2.5s!important;
-            transition-delay: 2.5s!important
-        }
-        .action-on-view.action-underline.transition-delay-2750::before {
-            -webkit-transition-delay: 2.75s!important;
-            transition-delay: 2.75s!important
-        }
-        .action-on-view.action-underline.transition-delay-3000::before {
-            -webkit-transition-delay: 3s!important;
-            transition-delay: 3s!important
-        }
-        /* --- End action-on-view and action-underline styles --- */
+        
+
     </style>
 </head>
 <body class="font-sans text-gray-800">
     <!-- PDF/document effect container -->
     <div class="screenshot-effect max-w-6xl mx-auto overflow-hidden rounded-t-lg">
+        <div class="traffic-lights-header">
+            <div class="traffic-lights-group">
+                <span class="traffic-light red">
+                    <svg viewBox="0 0 8 8" aria-label="Close"><line x1="2" y1="2" x2="6" y2="6" stroke="black" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="2" x2="2" y2="6" stroke="black" stroke-width="1.3" stroke-linecap="round"/></svg>
+                </span>
+                <span class="traffic-light yellow">
+                    <svg viewBox="0 0 8 8" aria-label="Minimize"><line x1="2" y1="4" x2="6" y2="4" stroke="black" stroke-width="1.3" stroke-linecap="round"/></svg>
+                </span>
+                <span class="traffic-light green">
+                    <svg viewBox="0 0 10 10" aria-label="Zoom"><path d="M2 8 L8 2 L8 8 Z" fill="black"/></svg>
+                </span>
+            </div>
+            <span class="tab-filename">echo_to_the_rescue.pdf</span>
+        </div>
         <!-- Navigation -->
-        <nav class="pt-12 px-6 md:px-12 flex justify-between items-center">
+        <nav class="px-6 md:px-12 flex justify-between items-center">
             <div class="flex items-center">
-                <span class="text-2xl font-bold gradient-text">Echo</span>
+                <img src="echo_logo.png" alt="Echo logo" class="h-10 w-auto" style="max-height:40px;" />
             </div>
             <div class="hidden md:flex space-x-8">
-                <a href="#demo" class="hover:text-blue-600 transition">Demo</a>
                 <a href="#benefits" class="hover:text-blue-600 transition">Benefits</a>
                 <a href="#about" class="hover:text-blue-600 transition">About</a>
                 <a href="#newsletter" class="hover:text-blue-600 transition">Newsletter</a>
             </div>
-            <button class="md:hidden text-gray-600">
-                <i class="fas fa-bars text-2xl"></i>
+            <button class="md:hidden hamburger" id="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
         </nav>
+        
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobile-menu">
+            <button class="mobile-menu-close" id="mobile-menu-close">&times;</button>
+            <div class="mobile-menu-links">
+                <a href="#benefits">Benefits</a>
+                <a href="#about">About</a>
+                <a href="#newsletter">Newsletter</a>
+                <a href="#request">Book Demo</a>
+                <a href="mailto:wally@hedgehox.com">Contact</a>
+            </div>
+        </div>
         
         <!-- Hero Section -->
         <section class="bg-white">
             <div class="max-w-5xl mx-auto px-2 md:px-4 flex flex-col md:flex-row items-center py-16 md:py-24">
                 <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
-                    <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+                    <h1 class="main-headline text-4xl md:text-5xl font-bold leading-tight mb-6">
                         Submission-Ready Screenshots, 
-                        <span class="action-on-view action-underline transition-delay-1000">in minutes.</span>
+                        <span class="highlight">in minutes.</span>
                     </h1>
-                    <p class="text-lg text-gray-600 mb-8">
-                        Echo helps you create beautiful, interactive snapshots of your digital products that you can share with clients, stakeholders, or your team.
-                    </p>
+                    <p class="text-lg text-gray-600 mb-8 text-left">
+                        Echo automates capture, routing, and QA—eliminating manual effort, freeing your team to focus on higher-level strategy, and accelerating project routes and launches.</p>
                     <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                        <a href="#demo" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
-                            Watch Demo
+                        <!-- Desktop buttons -->
+                        <a href="#request" class="hidden md:inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
+                            Book Demo
                         </a>
-                        <a href="#request" class="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
-                            Request Full Demo
+                        <a href="#newsletter" class="hidden md:inline-block border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
+                            Newsletter Signup
+                        </a>
+                        <!-- Mobile buttons -->
+                        <a href="#demo-video" class="md:hidden bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
+                            Watch Overview
+                        </a>
+                        <a href="#request" class="md:hidden border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-center font-medium transition hover-scale">
+                            Book Demo
                         </a>
                     </div>
                 </div>
                 <div class="md:w-1/2 relative">
                     <div class="relative overflow-hidden rounded-xl shadow-lg h-full min-h-[340px] flex items-center justify-center">
-                        <iframe class="w-full h-full min-h-[340px]" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Echo Product Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <iframe id="demo-video" class="w-full h-full min-h-[340px]" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" title="Echo Product Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
@@ -223,43 +309,57 @@
             <div class="max-w-5xl mx-auto px-2 md:px-4 py-16">
                 <div class="text-center mb-10">
                     <h2 class="text-3xl md:text-4xl font-bold mb-4">
-                        <span class="action-on-view action-underline transition-delay-0">Ready</span>
-                        <span class="action-on-view action-underline transition-delay-250"> to</span>
-                        <span class="action-on-view action-underline transition-delay-500"> see</span>
-                        <span class="action-on-view action-underline transition-delay-750"> Echo</span>
-                        <span class="action-on-view action-underline transition-delay-1000"> in</span>
-                        <span class="action-on-view action-underline transition-delay-1250"> action?</span>
+                        Ready to see Echo 
+                        <span class="highlight">in action?</span>
                     </h2>
-                    <div class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    <div class="text-xl text-gray-600 max-w-4xl mx-auto text-left">
                         Schedule a personalized demo where we'll walk you through all the features and show you how Echo can transform your workflow.
                     </div>
                 </div>
                 <div class="flex flex-col md:flex-row gap-10 items-stretch">
                     <div class="md:w-1/2 flex items-center justify-center">
                         <div class="w-full max-w-lg">
-                            <h3 class="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-3">
-                                <span><i class="fas fa-clipboard-list text-blue-600 text-2xl"></i></span>
-                                What to expect
-                            </h3>
-                            <div class="bg-blue-50 rounded-2xl p-8 md:p-10 shadow-lg border-2 border-blue-300 w-full">
-                                <div class="space-y-6">
+                            <div class="text-center mb-8">
+                                <h3 class="text-3xl font-bold text-blue-700 mb-3 flex items-center justify-center gap-3">
+                                    <span><i class="fas fa-clipboard-list text-blue-600 text-3xl"></i></span>
+                                    What to Expect
+                                </h3>
+                                <p class="text-gray-600 text-lg text-left">Your personalized demo experience</p>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
                                     <div class="flex items-start gap-4">
-                                        <span class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-check text-white"></i>
+                                        <span class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md">
+                                            <i class="fas fa-route text-white text-lg"></i>
                                         </span>
-                                        <span class="font-semibold text-blue-900 text-lg">Full end to end workflow walkthrough</span>
+                                        <div>
+                                            <h4 class="font-bold text-blue-900 text-lg mb-2">Full End-to-End Workflow</h4>
+                                            <p class="text-gray-600 text-left">Complete walkthrough of Echo's capture, routing, and QA processes</p>
+                                        </div>
                                     </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
                                     <div class="flex items-start gap-4">
-                                        <span class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-check text-white"></i>
+                                        <span class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-md">
+                                            <i class="fas fa-project-diagram text-white text-lg"></i>
                                         </span>
-                                        <span class="font-semibold text-blue-900 text-lg">Live project used for real-time feedback</span>
+                                        <div>
+                                            <h4 class="font-bold text-green-900 text-lg mb-2">Live Project Demo</h4>
+                                            <p class="text-gray-600 text-left">Real-time feedback using your actual project or a sample workflow</p>
+                                        </div>
                                     </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
                                     <div class="flex items-start gap-4">
-                                        <span class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-check text-white"></i>
+                                        <span class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+                                            <i class="fas fa-users text-white text-lg"></i>
                                         </span>
-                                        <span class="font-semibold text-blue-900 text-lg">Time with lead client relations and solutions</span>
+                                        <div>
+                                            <h4 class="font-bold text-purple-900 text-lg mb-2">Expert Consultation</h4>
+                                            <p class="text-gray-600 text-left">Direct time with our Client Relations & Solutions lead</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -277,106 +377,124 @@
         <section id="benefits" class="px-2 md:px-4 py-16">
             <div class="max-w-4xl mx-auto text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4">
-                    <span class="action-on-view action-underline transition-delay-0">Why</span>
-                    <span class="action-on-view action-underline transition-delay-250"> Choose</span>
-                    <span class="action-on-view action-underline transition-delay-500"> Echo?</span>
+                    <span>Why</span>
+                    <span> Choose</span>
+                    <span class="highlight">Echo</span>?
                 </h2>
-                <p class="text-xl text-gray-600">
-                    Our platform is designed to make your digital presence more tangible and shareable.
+                <p class="text-xl text-gray-600 text-left">
+                    Our platform delivers pixel-perfect screenshots across several devices—pre-padded for feedback—in minutes, not hours. Freeing you and your team to tackle the more pressing account needs.
                 </p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
                     <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                        <i class="fas fa-bolt text-blue-600 text-2xl"></i>
+                        <i class="fas fa-camera text-blue-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Lightning Fast Capture</h3>
-                    <p class="text-gray-600">
-                        Create interactive snapshots of your digital products in seconds. No more complicated screen recording setups or static screenshots.
-                    </p>
+                    <h3 class="text-2xl font-bold mb-4">Lightning-Fast Capture</h3>
+                    <p class="text-gray-600 text-left">
+                        Echo auto-captures every desktop, tablet, and mobile screen in seconds—complete with annotation-ready padding. No clunky browser extensions, no manual stitching.                    </p>
                 </div>
                 <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
                     <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                        <i class="fas fa-share-alt text-purple-600 text-2xl"></i>
+                        <i class="fas fa-cogs text-purple-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Seamless Sharing</h3>
-                    <p class="text-gray-600">
-                        Share your Echo captures via link, embed, or even as interactive PDFs. Your recipients don't need special software to view them.
+                    <h3 class="text-2xl font-bold mb-4">Global Project Conditioning</h3>
+                    <p class="text-gray-600 text-left">
+                        Capture every interactive element, including animations. No more manual annotations with our project-wide IF/THEN logic which applies to adjusting for viewport, size, tags, and any other conditions you specify.
                     </p>
                 </div>
                 <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
                     <div class="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                        <i class="fas fa-chart-line text-pink-600 text-2xl"></i>
+                        <i class="fas fa-tags text-pink-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Actionable Insights</h3>
-                    <p class="text-gray-600">
-                        Get detailed analytics on how your captures are viewed and interacted with. Understand what resonates with your audience.
-                    </p>
+                    <h3 class="text-2xl font-bold mb-4">Page Status Shares</h3>
+                    <p class="text-gray-600 text-left">
+                        Review any screen in Echo, tag it Approved, Rejected, or Pending, and let color-coded badges replace PDF mark-ups—keeping feedback visible and projects moving. In real-time.                    </p>
                 </div>
                 <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
                     <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                        <i class="fas fa-users text-green-600 text-2xl"></i>
+                        <i class="fas fa-sliders-h text-green-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold mb-4">Team Collaboration</h3>
-                    <p class="text-gray-600">
-                        Collaborate with your team in real time, leave comments, and manage feedback all in one place.
+                    <h3 class="text-2xl font-bold mb-4">Project Settings Capture</h3>
+                    <p class="text-gray-600 text-left">
+                        Set or edit staging URLs, credentials, breakpoints, and margins directly in Echo—no tickets, just instant updates.
                     </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Happy Client Section -->
+        <section class="bg-gray-50 py-16">
+            <div class="max-w-6xl mx-auto px-6 md:px-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Happy <span class="highlight">Clients</span></h2>
+                    <p class="text-xl text-gray-600 text-left max-w-4xl mx-auto">
+                        Trusted by leading pharmaceutical companies and agencies to deliver exceptional screenshot workflows and campaign assets.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
+                    <div class="w-32 h-20 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300">
+                        <img src="BrothLogoKO+copy.png" alt="Broth" class="w-full h-full object-contain filter invert">
+                    </div>
+                    <div class="w-32 h-20 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300">
+                        <img src="11london.png" alt="11london" class="w-full h-full object-contain filter invert">
+                    </div>
+                    <div class="w-32 h-20 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300">
+                        <img src="propeller_logo.svg" alt="Propeller" class="w-full h-full object-contain filter invert">
+                    </div>
+                    <div class="w-32 h-20 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300">
+                        <img src="merkleylogo.png" alt="Merkley" class="w-full h-full object-contain">
+                    </div>
                 </div>
             </div>
         </section>
         
         <!-- About Section -->
-        <section id="about" class="bg-gray-50">
+        <section id="about" class="bg-white">
             <div class="max-w-5xl mx-auto px-2 md:px-4 py-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">About Hedgehox</h2>
-                <div class="flex flex-col md:flex-row justify-center items-stretch gap-12 w-full">
-                    <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-xs mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">About <span class="highlight">Hedgehox</span></h2>
+                <p class="text-xl text-gray-600 text-left mb-16 max-w-4xl mx-auto">
+                    With nearly forty years of collective pharma-agency experience, they've lived the screenshot chaos first-hand—stitching captures, chasing feedback, and wrangling PDFs. Echo is the tool forged from that hard-won insight, replacing the manual grind with automated clarity.
+                </p>
+                <div class="flex flex-col md:flex-row justify-center items-stretch gap-8 w-full">
+                    <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-md mx-auto">
                         <div class="w-32 h-32 rounded-full bg-gradient-to-r from-blue-200 to-purple-200 flex items-center justify-center overflow-hidden shadow-lg mb-6">
-                            <img src="https://placehold.co/200x200/3b82f6/ffffff?text=Founder" alt="Founder" class="w-full h-full object-cover">
+                            <img src="carm.jpeg" alt="Carm, Founder" class="w-full h-full object-cover">
                         </div>
-                        <h3 class="text-2xl font-bold mb-2">Alex Johnson, Founder</h3>
-                        <p class="text-gray-600 mb-4 text-center">
-                            With over a decade of experience in digital product design, Alex saw the need for better tools to capture and share digital work. Echo was born from countless frustrating experiences trying to showcase interactive designs.
-                        </p>
-                        <div class="flex space-x-4">
-                            <a href="#" class="text-blue-600 hover:text-blue-800">
-                                <i class="fab fa-twitter text-xl"></i>
-                            </a>
-                            <a href="#" class="text-blue-600 hover:text-blue-800">
-                                <i class="fab fa-linkedin text-xl"></i>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="text-2xl font-bold">Carm, Founder</h3>
+                            <a href="https://www.linkedin.com/in/carm-hodzic-6981693/" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <i class="fab fa-linkedin text-3xl"></i>
                             </a>
                         </div>
+                        <p class="text-gray-600 mb-4 text-left">
+                            A seasoned leader in consumer and pharmaceutical technology, this executive brings more than 25 years of experience managing digital teams across software engineering, user experience, and quality assurance. They prioritize quality, efficiency, and analytics on every project and leverage data to drive innovative solutions. Known for seamless collaboration with creatives, project managers, account managers, and strategists, they consistently deliver exceptional engagement and performance. Combining inventive thinking with deep technical expertise, they embrace even the toughest creative and technical challenges.                        </p>
                     </div>
-                    <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-xs mx-auto">
+                    <div class="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-md mx-auto">
                         <div class="w-32 h-32 rounded-full bg-gradient-to-r from-purple-200 to-pink-200 flex items-center justify-center overflow-hidden shadow-lg mb-6">
-                            <img src="https://placehold.co/200x200/8b5cf6/ffffff?text=Partner" alt="Partner" class="w-full h-full object-cover">
+                            <img src="wally.jpg" alt="Wally, Partner" class="w-full h-full object-cover">
                         </div>
-                        <h3 class="text-2xl font-bold mb-2">Sam Taylor, Partner</h3>
-                        <p class="text-gray-600 mb-4 text-center">
-                            Sam brings technical expertise from years of developing SaaS platforms. Their partnership ensures Echo is both powerful and easy to use, with a focus on solving real problems for creative professionals.
-                        </p>
-                        <div class="flex space-x-4">
-                            <a href="#" class="text-blue-600 hover:text-blue-800">
-                                <i class="fab fa-github text-xl"></i>
-                            </a>
-                            <a href="#" class="text-blue-600 hover:text-blue-800">
-                                <i class="fab fa-linkedin text-xl"></i>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="text-2xl font-bold">Wally, Partner</h3>
+                            <a href="https://www.linkedin.com/in/wmostafa/" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <i class="fab fa-linkedin text-3xl"></i>
                             </a>
                         </div>
-                    </div>
+                        <p class="text-gray-600 mb-4 text-left">
+                            An accomplished pharma-agency strategist, he draws on more than a decade leading cross-functional teams through high-stakes launches and omnichannel campaigns. His approach merges strict compliance with measurable impact, harnessing data insights to craft solutions that resonate with prescribers, patients, and payers. Celebrated for bridging account, UX, and technology, he has earned Indigo and Red Dot honors for design systems, visual analytics, and decision-support tools. Equal parts storyteller and technologist, he turns regulatory constraints into opportunities for clarity, growth, and lasting value.
                 </div>
             </div>
         </section>
         
-        <!-- Newsletter Section -->
-        <section id="newsletter" class="px-6 md:px-12 py-16">
+                <!-- Newsletter Section -->
+        <section id="newsletter" class="bg-gray-50 px-6 md:px-12 py-16">
             <div class="max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 md:p-12 text-center">
-                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
-                    <i class="fas fa-hedgehog text-3xl gradient-text"></i>
+                <div class="flex justify-center mb-4">
+                    <img src="hedgehox_logo.png" alt="Hedgehox logo" class="h-12 w-auto md:h-14" />
                 </div>
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">The Hedgehox Herald</h2>
-                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                    Subscribe to our newsletter for product updates, tips on digital capture, and occasional hedgehog facts (we couldn't resist).
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800">The <span class="highlight">Hedgehox Herald</span></h2>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto text-left">
+                    Subscribe to our newsletter for product updates, company news, and the occasional hedgehog facts (we couldn't resist).
                 </p>
                 <form class="flex flex-col sm:flex-row max-w-md mx-auto">
                     <input type="email" placeholder="Your email address" class="flex-1 px-4 py-3 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 sm:mb-0">
@@ -393,26 +511,18 @@
                 <div class="flex flex-col md:flex-row justify-between mb-12">
                     <div class="mb-8 md:mb-0">
                         <span class="text-2xl font-bold text-white gradient-text">Echo</span>
+                        <p class="text-sm text-gray-400 mt-1">Powered by <a href="https://hedgehox.com" class="hover:text-white transition">Hedgehox</a></p>
                         <p class="mt-4 max-w-xs">
-                            Capture, share, and analyze your digital presence with unprecedented ease.
+                            Echo is a web-based application that automates the screenshot process which significantly improves speed and quality of routes.
                         </p>
                     </div>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-                        <div>
-                            <h4 class="text-white font-medium mb-4">Product</h4>
-                            <ul class="space-y-2">
-                                <li><a href="#" class="hover:text-white transition">Features</a></li>
-                                <li><a href="#" class="hover:text-white transition">Pricing</a></li>
-                                <li><a href="#" class="hover:text-white transition">Demo</a></li>
-                            </ul>
-                        </div>
+                    <div class="grid grid-cols-2 gap-8">
                         <div>
                             <h4 class="text-white font-medium mb-4">Company</h4>
                             <ul class="space-y-2">
-                                <li><a href="#" class="hover:text-white transition">About</a></li>
-                                <li><a href="#" class="hover:text-white transition">Careers</a></li>
-                                <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                                <li><a href="https://hedgehox.com" class="hover:text-white transition">Hedgehox</a></li>
+                                <li><a href="mailto:wally@hedgehox.com" class="hover:text-white transition">Contact</a></li>
                             </ul>
                         </div>
                         <div>
@@ -420,23 +530,16 @@
                             <ul class="space-y-2">
                                 <li><a href="#" class="hover:text-white transition">Privacy</a></li>
                                 <li><a href="#" class="hover:text-white transition">Terms</a></li>
-                                <li><a href="#" class="hover:text-white transition">Security</a></li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 
                 <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-                    <p class="mb-4 md:mb-0">© 2023 Hedgehox, Inc. All rights reserved.</p>
+                    <p class="mb-4 md:mb-0">© 2025 Hedgehox, Inc. All rights reserved.</p>
                     <div class="flex space-x-6">
                         <a href="#" class="hover:text-white transition">
-                            <i class="fab fa-twitter text-xl"></i>
-                        </a>
-                        <a href="#" class="hover:text-white transition">
                             <i class="fab fa-linkedin text-xl"></i>
-                        </a>
-                        <a href="#" class="hover:text-white transition">
-                            <i class="fab fa-instagram text-xl"></i>
                         </a>
                     </div>
                 </div>
@@ -464,39 +567,40 @@
             button.classList.remove('transform', 'scale-105');
         });
     });
-    // Mobile menu toggle (would be expanded in a real implementation)
-    const mobileMenuButton = document.querySelector('.md\:hidden');
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', () => {
-            alert('Mobile menu would open here in a full implementation');
-        });
-    }
-    // Intersection Observer for .action-on-view
-    document.addEventListener("DOMContentLoaded", function() {
-        // Intersection Observer for scroll-in animation
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('in-view');
-                }
-            });
-        }, { threshold: 0.5 });
-
-        // Observe all .action-on-view elements
-        document.querySelectorAll('.action-on-view').forEach(el => {
-            observer.observe(el);
-        });
-
-        // Ensure animation triggers for elements already visible on load
-        setTimeout(() => {
-            document.querySelectorAll('.action-on-view').forEach(el => {
-                const rect = el.getBoundingClientRect();
-                if (rect.top < window.innerHeight && rect.bottom > 0) {
-                    el.classList.add('in-view');
-                }
-            });
-        }, 100);
+    // Mobile menu functionality
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const mobileMenuLinks = document.querySelectorAll('.mobile-menu-links a');
+    
+    // Open mobile menu
+    mobileMenuToggle.addEventListener('click', () => {
+        mobileMenu.classList.add('active');
+        mobileMenuOverlay.classList.add('active');
+        mobileMenuToggle.classList.add('active');
+        document.body.style.overflow = 'hidden';
     });
+    
+    // Close mobile menu
+    const closeMobileMenu = () => {
+        mobileMenu.classList.remove('active');
+        mobileMenuOverlay.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+    
+    mobileMenuClose.addEventListener('click', closeMobileMenu);
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    
+    // Close menu when clicking on a link
+    mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+
+    // Highlight animation is handled by highlight.js
+
     </script>
+    <script src="highlight.js"></script>
 </body>
 </html>
