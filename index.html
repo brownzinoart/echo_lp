@@ -217,6 +217,30 @@
             transform: rotate(45deg) translate(-5px, -6px);
         }
         
+        /* Navigation link hover highlight effect - same as word highlights */
+        .nav-highlight {
+            position: relative;
+            white-space: nowrap;
+            display: inline-block;
+        }
+        
+        .nav-highlight::before {
+            content: "";
+            position: absolute;
+            height: 0.3em;
+            width: 0;
+            bottom: -0.1em;
+            left: 0;
+            background: rgba(232,181,25,0.4); /* Same 40% opacity yellow */
+            z-index: 0;
+            transform: rotate(-1deg);
+            transition: width 1.5s cubic-bezier(0.25, 0.46, 0.135, 0.995);
+        }
+        
+        .nav-highlight:hover::before {
+            width: 100%;
+        }
+        
 
     </style>
 </head>
@@ -243,9 +267,9 @@
                 <img src="echo_logo.png" alt="Echo logo" class="h-10 w-auto" style="max-height:40px;" />
             </div>
             <div class="hidden md:flex space-x-8">
-                <a href="#benefits" class="hover:text-blue-600 transition">Benefits</a>
-                <a href="#about" class="hover:text-blue-600 transition">About</a>
-                <a href="#newsletter" class="hover:text-blue-600 transition">Newsletter</a>
+                <a href="#benefits" class="nav-highlight">Benefits</a>
+                <a href="#about" class="nav-highlight">About</a>
+                <a href="#newsletter" class="nav-highlight">Newsletter</a>
             </div>
             <button class="md:hidden hamburger" id="mobile-menu-toggle">
                 <span></span>
@@ -261,11 +285,11 @@
         <div class="mobile-menu" id="mobile-menu">
             <button class="mobile-menu-close" id="mobile-menu-close">&times;</button>
             <div class="mobile-menu-links">
-                <a href="#benefits">Benefits</a>
-                <a href="#about">About</a>
-                <a href="#newsletter">Newsletter</a>
-                <a href="#request">Book Demo</a>
-                <a href="mailto:wally@hedgehox.com">Contact</a>
+                <a href="#benefits" class="nav-highlight">Benefits</a>
+                <a href="#about" class="nav-highlight">About</a>
+                <a href="#newsletter" class="nav-highlight">Newsletter</a>
+                <a href="#request" class="nav-highlight">Book Demo</a>
+                <a href="mailto:wally@hedgehox.com" class="nav-highlight">Contact</a>
             </div>
         </div>
         
